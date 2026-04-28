@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial + Inventory Control System — Portfolio Case Study</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #f4f1ee;
+  --surface: #faf8f5;
+  --surface2: #ede9e3;
+  --surface3: #e4dfd7;
+  --border: rgba(0,0,0,0.07);
+  --border2: rgba(0,0,0,0.13);
+  --text: #1c1814;
+  --muted: #7d746a;
+  --accent: #7a3018;
+  --accent-dim: rgba(122,48,24,0.08);
+  --accent-light: #a04020;
+  --green: #3a6b2a;
+  --green-dim: rgba(58,107,42,0.08);
+  --red: #b03020;
+  --red-dim: rgba(176,48,32,0.08);
+  --yellow: #8a6000;
+  --yellow-dim: rgba(138,96,0,0.08);
+  --purple: #5a3870;
+  --purple-dim: rgba(90,56,112,0.08);
+  --font: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --radius: 6px;
+  --radius-lg: 10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;border-bottom:1px solid var(--border2);overflow:hidden}
+.hero-left{padding:80px 60px;border-right:1px solid var(--border2)}
+.hero-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;margin-bottom:32px;display:flex;align-items:center;gap:10px}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--accent-light)}
+.hero h1{font-size:clamp(26px,3.5vw,46px);font-weight:300;line-height:1.2;max-width:480px;margin-bottom:24px;letter-spacing:-0.02em}
+.hero h1 strong{font-weight:500;color:var(--green)}
+.hero-sub{font-size:15px;color:var(--muted);max-width:400px;margin-bottom:44px;line-height:1.8}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;max-width:340px}
+.stat{background:var(--surface);padding:16px 18px}
+.stat-v{font-family:var(--mono);font-size:20px;font-weight:500;color:var(--green);margin-bottom:3px}
+.stat-l{font-size:11px;color:var(--muted)}
+.hero-right{padding:36px;background:var(--surface2);height:100%;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.hero-right-lbl{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+.flow-step{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:11px 14px;font-size:13px;color:var(--text)}
+.fnum{font-family:var(--mono);font-size:10px;color:var(--muted);width:18px;flex-shrink:0}
+.fdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── CASE STUDY ── */
+.case-study{max-width:860px;margin:0 auto;padding:80px 40px;border-bottom:1px solid var(--border2)}
+.cs-sec{margin-bottom:48px}
+.cs-lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.cs-lbl::after{content:'';flex:1;height:1px;background:var(--border2)}
+.cs-sec h2{font-size:24px;font-weight:400;margin-bottom:16px;letter-spacing:-0.01em}
+.cs-sec p{color:var(--muted);font-size:15px;line-height:1.85;margin-bottom:14px}
+.cs-sec ul{list-style:none;margin-bottom:14px}
+.cs-sec ul li{font-size:15px;color:var(--muted);padding:5px 0 5px 20px;position:relative;line-height:1.7}
+.cs-sec ul li::before{content:'→';position:absolute;left:0;color:var(--accent);font-size:11px;top:7px}
+.outcome-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;margin:20px 0}
+.outcome-cell{background:var(--surface);padding:18px}
+.outcome-v{font-family:var(--mono);font-size:24px;font-weight:500;color:var(--green);margin-bottom:4px}
+.outcome-l{font-size:12px;color:var(--muted)}
+.tools-row{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.ttag{font-family:var(--mono);font-size:11px;border:1px solid var(--border2);padding:3px 12px;border-radius:3px;color:var(--muted);background:var(--surface)}
+.quote-block{border-left:2px solid var(--green);padding:14px 20px;background:var(--surface);font-size:14px;color:var(--muted);line-height:1.8;font-style:italic;border-radius:0 6px 6px 0}
+
+/* ── APP FRAME ── */
+.dash-section{padding:60px 20px;border-bottom:1px solid var(--border2);background:var(--surface2)}
+.sec-header{text-align:center;margin-bottom:40px}
+.sec-header h2{font-size:22px;font-weight:400;margin-bottom:8px}
+.sec-header p{color:var(--muted);font-size:13px;font-family:var(--mono)}
+.app-frame{max-width:1080px;margin:0 auto;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+.app-bar{background:var(--accent);padding:10px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%}
+.dr{background:#f87171}.dy{background:#fbbf24}.dg{background:#34d399}
+.app-url{flex:1;background:rgba(255,255,255,0.15);border-radius:4px;padding:4px 12px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.65)}
+.app-nav{display:flex;background:var(--surface2);border-bottom:1px solid var(--border2);overflow-x:auto}
+.tab{font-size:12px;font-family:var(--mono);padding:10px 16px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--accent-light);border-bottom-color:var(--accent-light);background:var(--surface)}
+.screen{display:none;padding:20px}
+.screen.on{display:block}
+
+/* ── COMPONENTS ── */
+.sbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.stitle{font-size:15px;font-weight:500;font-family:var(--mono);color:var(--text)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--border2);border-radius:3px;color:var(--muted);cursor:pointer;background:var(--surface2)}
+.pill.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-dl{font-family:var(--mono);font-size:11px;padding:6px 14px;background:transparent;color:var(--green);border:1px solid var(--green);border-radius:4px;cursor:pointer}
+.btn-dl:hover{background:var(--green);color:var(--bg)}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.kpi-l{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px}
+.kpi-v{font-size:18px;font-weight:500}
+.kpi-s{font-family:var(--mono);font-size:10px;margin-top:3px}
+.kv-g{color:var(--green)}.kv-r{color:var(--red)}.kv-y{color:var(--yellow)}.kv-p{color:var(--purple)}.kv-a{color:var(--accent-light)}
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.card-lbl{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);text-align:left;padding:6px 10px;border-bottom:1px solid var(--border2)}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surface2)}
+.bdg{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:3px}
+.bg{background:var(--green-dim);color:var(--green)}.br{background:var(--red-dim);color:var(--red)}.by{background:var(--yellow-dim);color:var(--yellow)}.bb{background:var(--accent-dim);color:var(--accent-light)}.bp{background:var(--purple-dim);color:var(--purple)}
+.insight{background:var(--accent-dim);border-left:2px solid var(--accent-light);padding:10px 14px;font-size:12px;color:#5a2010;line-height:1.65;margin-top:12px;border-radius:0 4px 4px 0;font-style:italic}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sum-bar{display:flex;gap:20px;font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border2);padding:8px 14px;border-radius:var(--radius);margin-bottom:14px;flex-wrap:wrap}
+.sum-bar strong{color:var(--text)}
+
+/* ── FLOW TRACKER ── */
+.flow-track{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:8px;margin-bottom:18px}
+.flow-node{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 14px;min-width:110px;flex-shrink:0;text-align:center}
+.flow-node.warn{border-color:var(--yellow);background:var(--yellow-dim)}
+.flow-node.err{border-color:var(--red);background:var(--red-dim)}
+.fn-label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px}
+.fn-val{font-size:18px;font-weight:500}
+.fn-change{font-family:var(--mono);font-size:10px;margin-top:4px}
+.flow-arrow{font-size:16px;color:var(--border2);padding:0 6px;flex-shrink:0}
+.flow-arrow.warn{color:var(--red)}
+
+/* ── ALERTS ── */
+.alert-card{display:flex;gap:12px;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;align-items:flex-start}
+.alert-card.high{border-left:2px solid var(--red)}
+.alert-card.med{border-left:2px solid var(--yellow)}
+.alert-card.low{border-left:2px solid var(--accent)}
+.adot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.adr{background:var(--red)}.ady{background:var(--yellow)}.adb{background:var(--accent)}
+.alert-msg{font-size:13px;color:var(--text);line-height:1.5}
+.alert-sub{font-size:11px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
+.abadge{margin-left:auto;flex-shrink:0}
+.abtn-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.abtn{font-family:var(--mono);font-size:11px;padding:4px 12px;border:1px solid var(--border2);border-radius:3px;background:transparent;color:var(--text);cursor:pointer}
+.abtn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.abtn-p{background:var(--green);color:var(--bg);border-color:var(--green)}
+.abtn-p:hover{background:#1fbb8a}
+
+/* ── TIMELINE ── */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:14px;padding:10px 0;position:relative}
+.tl-item::before{content:'';position:absolute;left:9px;top:26px;bottom:-10px;width:1px;background:var(--border2)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:20px;height:20px;border-radius:50%;border:2px solid;flex-shrink:0;margin-top:2px}
+.tdg{border-color:var(--green);background:var(--green-dim)}
+.tdb{border-color:var(--accent);background:var(--accent-dim)}
+.tdy{border-color:var(--yellow);background:var(--yellow-dim)}
+.tdr{border-color:var(--red);background:var(--red-dim)}
+.tl-label{font-size:12px;font-weight:500;color:var(--text)}
+.tl-sub{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.tl-delta{font-family:var(--mono);font-size:11px;margin-top:3px}
+
+/* ── ROOT CAUSE ── */
+.stage-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stage-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}
+.stage-box.mismatch{border-color:var(--red);background:var(--red-dim)}
+.sb-label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px}
+.sb-exp{font-size:12px;color:var(--muted)}
+.sb-act{font-size:17px;font-weight:500}
+.sb-diff{font-family:var(--mono);font-size:11px;margin-top:3px}
+
+/* ── FORECASTING ── */
+.scenario-control{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+.sc-label{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+.sc-track{width:100%;height:5px;background:var(--border2);border-radius:3px;-webkit-appearance:none;appearance:none;cursor:pointer;outline:none}
+.sc-track::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent-light);border:2px solid var(--bg)}
+.proj-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.proj-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}
+.pj-v{font-family:var(--mono);font-size:18px;font-weight:500}
+.pj-l{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ── MAP PLACEHOLDER ── */
+.map-placeholder{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:14px;position:relative;overflow:hidden}
+.map-bg{position:absolute;inset:0;opacity:0.03;background:repeating-linear-gradient(0deg,transparent,transparent 20px,var(--text) 20px,var(--text) 21px),repeating-linear-gradient(90deg,transparent,transparent 20px,var(--text) 20px,var(--text) 21px)}
+.map-pins{display:flex;flex-wrap:wrap;gap:10px;position:relative;z-index:1}
+.map-pin{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;border-radius:4px;border:1px solid}
+.mp-g{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.mp-y{background:var(--yellow-dim);border-color:var(--yellow);color:var(--yellow)}
+.mp-r{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+
+/* ── FOOTER ── */
+footer{padding:48px 60px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;border-top:1px solid var(--border2)}
+footer p{color:var(--muted);font-size:13px;font-family:var(--mono)}
+.ftag{font-family:var(--mono);font-size:10px;color:var(--muted);border:1px solid var(--border2);padding:4px 12px;border-radius:3px}
+
+@media(max-width:700px){
+  .hero{grid-template-columns:1fr}
+  .hero-right{display:none}
+  .hero-left{padding:60px 24px}
+  .split{grid-template-columns:1fr}
+  .stage-row{grid-template-columns:1fr 1fr}
+  .case-study{padding:60px 24px}
+  footer{padding:40px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Portfolio Case Study · Project 03</div>
+    <h1>Financial + <strong>Inventory Control</strong> System</h1>
+    <p class="hero-sub">A multi-country operations control system connecting inventory flow to financial performance — tracking units across supply chain stages, detecting discrepancies, and enabling scenario-based decisions.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-v">$18K</div><div class="stat-l">Losses detected & recovered</div></div>
+      <div class="stat"><div class="stat-v">4</div><div class="stat-l">Countries monitored</div></div>
+      <div class="stat"><div class="stat-v">99.1%</div><div class="stat-l">Inventory accuracy rate</div></div>
+      <div class="stat"><div class="stat-v">40%</div><div class="stat-l">Faster issue resolution</div></div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-right-lbl">Control system flow</div>
+    <div class="flow-step"><span class="fnum">01</span><div class="fdot" style="background:var(--accent)"></div><span>Operations overview — global status at a glance</span></div>
+    <div class="flow-step"><span class="fnum">02</span><div class="fdot" style="background:var(--green)"></div><span>Inventory flow tracker — units across all stages</span></div>
+    <div class="flow-step"><span class="fnum">03</span><div class="fdot" style="background:var(--purple)"></div><span>Country-level P&amp;L — profitability per market</span></div>
+    <div class="flow-step"><span class="fnum">04</span><div class="fdot" style="background:var(--yellow)"></div><span>Discrepancy detection — central alert hub</span></div>
+    <div class="flow-step"><span class="fnum">05</span><div class="fdot" style="background:var(--red)"></div><span>Root cause investigation — drill into any issue</span></div>
+    <div class="flow-step"><span class="fnum">06</span><div class="fdot" style="background:var(--green)"></div><span>Forecasting &amp; scenario planning — what-if analysis</span></div>
+  </div>
+</section>
+
+<!-- CASE STUDY -->
+<section class="case-study">
+  <div class="cs-sec">
+    <div class="cs-lbl">The problem</div>
+    <h2>Inventory losses with no financial visibility</h2>
+    <p>The client operated a product distribution business across four Latin American countries — Mexico, Colombia, Brazil, and Peru. Units were shipped from a central warehouse, handed to local partners, and deployed to end users. The problem: by the time financial reports were produced at month-end, inventory discrepancies had already become losses. There was no system connecting what was happening physically to what was showing up financially.</p>
+    <p>The client needed more than a dashboard. They needed a control system — something that could detect a missing shipment in Mexico, explain why a margin dropped in Brazil, and model what expanding to a new country would actually cost.</p>
+  </div>
+
+  <div class="cs-sec">
+    <div class="cs-lbl">System model</div>
+    <h2>Connecting inventory to finance at every stage</h2>
+    <p>I designed the system around a single core principle: every unit that moves must have a corresponding financial entry, and any divergence between the two is an alert. The inventory flow — Supplier → Warehouse → Shipped → Country Partner → Active → Returned — is mirrored by a financial flow at each stage, so a missing unit isn't just a logistics problem, it immediately shows up as a cost and margin impact.</p>
+    <ul>
+      <li>10,240 total units tracked across 4 countries simultaneously</li>
+      <li>Each shipment stage cross-referenced against partner receipts within 24 hours</li>
+      <li>Any variance above 1% triggers an automatic alert with financial impact estimate</li>
+      <li>Country-level P&L updated weekly, not monthly — issues caught in days, not weeks</li>
+    </ul>
+  </div>
+
+  <div class="cs-sec">
+    <div class="cs-lbl">Tools used</div>
+    <div class="tools-row">
+      <span class="ttag">Excel</span><span class="ttag">Google Sheets</span><span class="ttag">QuickBooks</span>
+      <span class="ttag">Power Query</span><span class="ttag">Google Slides</span><span class="ttag">Notion</span>
+    </div>
+  </div>
+
+  <div class="cs-sec">
+    <div class="cs-lbl">Outcome</div>
+    <div class="outcome-row">
+      <div class="outcome-cell"><div class="outcome-v">$18K</div><div class="outcome-l">In inventory losses detected over 5 months</div></div>
+      <div class="outcome-cell"><div class="outcome-v">99.1%</div><div class="outcome-l">Inventory accuracy after system rollout</div></div>
+      <div class="outcome-cell"><div class="outcome-v">40%</div><div class="outcome-l">Faster issue resolution vs previous process</div></div>
+      <div class="outcome-cell"><div class="outcome-v">Weekly</div><div class="outcome-l">P&L cadence — was monthly before</div></div>
+    </div>
+    <div class="quote-block">"We knew we were losing units somewhere but couldn't pinpoint where. This system showed us exactly which shipment stage was the problem in each country. We stopped the losses within the first month."</div>
+  </div>
+</section>
+
+<!-- LIVE SYSTEM -->
+<section class="dash-section">
+  <div class="sec-header">
+    <h2>Live system preview</h2>
+    <p>// explore all 6 screens of the inventory control system</p>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar">
+      <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+      <div class="app-url">inventory-control-system · multi-country client · illustrative sample</div>
+    </div>
+    <div class="app-nav">
+      <button class="tab on" onclick="showTab('s1',this)">Operations overview</button>
+      <button class="tab" onclick="showTab('s2',this)">Inventory flow</button>
+      <button class="tab" onclick="showTab('s3',this)">Country P&amp;L</button>
+      <button class="tab" onclick="showTab('s4',this)">Discrepancies</button>
+      <button class="tab" onclick="showTab('s5',this)">Root cause</button>
+      <button class="tab" onclick="showTab('s6',this)">Forecasting</button>
+    </div>
+
+    <!-- S1: OPERATIONS OVERVIEW -->
+    <div id="s1" class="screen on">
+      <div class="sbar">
+        <span class="stitle">Operations control center</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="pills"><span class="pill on">All countries</span><span class="pill">Mexico</span><span class="pill">Brazil</span><span class="pill">Colombia</span></div>
+          <button class="btn-dl">↓ Download report</button>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-l">Units in system</div><div class="kpi-v kv-a">10,240</div><div class="kpi-s">4 countries</div></div>
+        <div class="kpi"><div class="kpi-l">Active units</div><div class="kpi-v kv-g">9,860</div><div class="kpi-s kv-g">+3.2% vs last month</div></div>
+        <div class="kpi"><div class="kpi-l">Missing units</div><div class="kpi-v kv-r">240</div><div class="kpi-s kv-r">⚠ Needs investigation</div></div>
+        <div class="kpi"><div class="kpi-l">Revenue</div><div class="kpi-v kv-g">$284,000</div><div class="kpi-s kv-g">+6% vs last month</div></div>
+        <div class="kpi"><div class="kpi-l">Margin %</div><div class="kpi-v kv-y">28%</div><div class="kpi-s kv-y">↓ Was 32%</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-lbl">Country health status</div>
+        <div class="map-placeholder">
+          <div class="map-bg"></div>
+          <div class="map-pins">
+            <div class="map-pin mp-g">🇨🇴 Colombia — Healthy · Margin 34%</div>
+            <div class="map-pin mp-g">🇵🇪 Peru — Healthy · Margin 31%</div>
+            <div class="map-pin mp-y">🇧🇷 Brazil — Warning · Margin 24% ↓</div>
+            <div class="map-pin mp-r">🇲🇽 Mexico — Issue · 10 units missing</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-lbl">Inventory snapshot</div>
+          <table class="tbl">
+            <thead><tr><th>Stage</th><th>Units</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Shipped</td><td>10,480</td><td><span class="bdg bg">On track</span></td></tr>
+              <tr><td>Received</td><td>10,240</td><td><span class="bdg by">-240 gap</span></td></tr>
+              <tr><td>Active</td><td>9,860</td><td><span class="bdg bg">On track</span></td></tr>
+              <tr><td>Returned</td><td>380</td><td><span class="bdg bb">Normal rate</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-lbl">Financial summary</div>
+          <table class="tbl">
+            <thead><tr><th>Metric</th><th>Amount</th><th>vs Target</th></tr></thead>
+            <tbody>
+              <tr><td>Revenue</td><td>$284,000</td><td style="color:var(--green)">+6%</td></tr>
+              <tr><td>Total costs</td><td>$204,480</td><td style="color:var(--yellow)">+11%</td></tr>
+              <tr><td>Gross margin</td><td>$79,520</td><td style="color:var(--red)">-8%</td></tr>
+              <tr><td>Margin %</td><td>28%</td><td style="color:var(--red)">↓ was 32%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="card-lbl">Active alerts</div>
+        <div class="alert-card high">
+          <div class="adot adr"></div>
+          <div><div class="alert-msg">Mexico: 10 units missing between warehouse and partner receipt</div><div class="alert-sub">Shipment #MX-0492 · Apr 18 · Est. loss: $2,800</div></div>
+          <div class="abadge"><span class="bdg br">High</span></div>
+        </div>
+        <div class="alert-card med">
+          <div class="adot ady"></div>
+          <div><div class="alert-msg">Brazil: Gross margin dropped 8% — shipping costs increased</div><div class="alert-sub">Apr 2026 · vs Mar 2026 · Impact: -$3,200</div></div>
+          <div class="abadge"><span class="bdg by">Medium</span></div>
+        </div>
+        <div class="alert-card low">
+          <div class="adot adb"></div>
+          <div><div class="alert-msg">Colombia: Partner payment delayed by 6 days</div><div class="alert-sub">Expected Apr 20 · Received Apr 26 · No financial impact</div></div>
+          <div class="abadge"><span class="bdg bb">Low</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2: INVENTORY FLOW -->
+    <div id="s2" class="screen">
+      <div class="sbar">
+        <span class="stitle">Inventory flow tracker</span>
+        <div class="pills"><span class="pill on">All countries</span><span class="pill">Mexico</span><span class="pill">Apr 2026</span></div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Unit flow — supplier to end user</div>
+        <div class="flow-track">
+          <div class="flow-node"><div class="fn-label">Supplier</div><div class="fn-val kv-a">10,500</div><div class="fn-change" style="color:var(--muted)">Base stock</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node"><div class="fn-label">Warehouse</div><div class="fn-val kv-g">10,480</div><div class="fn-change kv-g">-20 transit</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node warn"><div class="fn-label">Shipped</div><div class="fn-val kv-y">10,480</div><div class="fn-change kv-y">On route</div></div>
+          <div class="flow-arrow warn">→</div>
+          <div class="flow-node err"><div class="fn-label">Received</div><div class="fn-val kv-r">10,240</div><div class="fn-change kv-r">⚠ -240 gap</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node"><div class="fn-label">Active</div><div class="fn-val kv-g">9,860</div><div class="fn-change kv-g">Deployed</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node"><div class="fn-label">Returned</div><div class="fn-val" style="color:var(--muted)">380</div><div class="fn-change" style="color:var(--muted)">3.7% rate</div></div>
+        </div>
+        <div class="insight">Critical gap detected: Shipped 10,480 → Received 10,240 → <strong style="color:var(--red)">240 units unaccounted</strong>. Gap is concentrated in Mexico (10 units) and Brazil (230 units in transit). Estimated financial impact: $67,200 at cost.</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Stage detail by country</div>
+        <div style="overflow-x:auto">
+        <table class="tbl" style="min-width:520px">
+          <thead><tr><th>Country</th><th>Shipped</th><th>Received</th><th>Active</th><th>Returned</th><th>Gap</th></tr></thead>
+          <tbody>
+            <tr><td>🇨🇴 Colombia</td><td>2,800</td><td>2,800</td><td>2,720</td><td>80</td><td><span class="bdg bg">0</span></td></tr>
+            <tr><td>🇵🇪 Peru</td><td>1,900</td><td>1,900</td><td>1,840</td><td>60</td><td><span class="bdg bg">0</span></td></tr>
+            <tr><td>🇧🇷 Brazil</td><td>3,780</td><td>3,550</td><td>3,420</td><td>130</td><td><span class="bdg by">-230</span></td></tr>
+            <tr><td>🇲🇽 Mexico</td><td>2,000</td><td>1,990</td><td>1,880</td><td>110</td><td><span class="bdg br">-10</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3: COUNTRY P&L -->
+    <div id="s3" class="screen">
+      <div class="sbar">
+        <span class="stitle">Country-level P&amp;L</span>
+        <div class="pills"><span class="pill on">Brazil</span><span class="pill">Mexico</span><span class="pill">Colombia</span><span class="pill">Peru</span></div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-l">Revenue</div><div class="kpi-v kv-g">$98,400</div><div class="kpi-s kv-g">+4% vs last month</div></div>
+        <div class="kpi"><div class="kpi-l">Total cost</div><div class="kpi-v kv-y">$74,500</div><div class="kpi-s kv-y">+18% vs last month</div></div>
+        <div class="kpi"><div class="kpi-l">Gross margin</div><div class="kpi-v kv-r">$23,900</div><div class="kpi-s kv-r">↓ -8% vs last month</div></div>
+        <div class="kpi"><div class="kpi-l">Net margin %</div><div class="kpi-v kv-r">24%</div><div class="kpi-s kv-r">Target was 32%</div></div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Revenue vs cost vs profit — Brazil (6 months)</div>
+        <div style="position:relative;height:180px"><canvas id="pl-chart" role="img" aria-label="Line chart of revenue, cost, and profit for Brazil over 6 months">Revenue stable around $95-98k; costs rising from $62k to $74k; profit declining from $33k to $24k.</canvas></div>
+        <div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--muted)">
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:16px;height:2px;background:var(--green);display:inline-block"></span>Revenue</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:16px;height:2px;background:var(--red);display:inline-block"></span>Costs</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:16px;height:2px;background:var(--accent);display:inline-block;border-top:2px dashed var(--accent);height:0"></span>Profit</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Partner breakdown — Brazil</div>
+        <div style="overflow-x:auto">
+        <table class="tbl" style="min-width:460px">
+          <thead><tr><th>Partner</th><th>Revenue</th><th>Cost</th><th>Margin</th><th>Trend</th></tr></thead>
+          <tbody>
+            <tr><td>Distribuidora Norte</td><td>$42,000</td><td>$29,400</td><td>30%</td><td><span class="bdg bg">Stable</span></td></tr>
+            <tr><td>Sul Logistics</td><td>$31,200</td><td>$26,520</td><td>15%</td><td><span class="bdg br">↓ -12%</span></td></tr>
+            <tr><td>Rio Partners</td><td>$25,200</td><td>$18,580</td><td>26%</td><td><span class="bdg by">↓ -4%</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="insight">Brazil margin decline is driven by Sul Logistics — shipping costs increased 28% due to fuel surcharges in Q1. Revenue is stable but cost structure needs renegotiation. Recommend reviewing contract terms before May renewal.</div>
+      </div>
+    </div>
+
+    <!-- S4: DISCREPANCIES -->
+    <div id="s4" class="screen">
+      <div class="sbar">
+        <span class="stitle">Discrepancy detection &amp; alerts</span>
+        <div class="pills"><span class="pill on">All</span><span class="pill">Inventory</span><span class="pill">Financial</span><span class="pill">High severity</span></div>
+      </div>
+      <div class="sum-bar">
+        <span>Total issues: <strong>11</strong></span>
+        <span>High: <strong style="color:var(--red)">3</strong></span>
+        <span>Medium: <strong style="color:var(--yellow)">5</strong></span>
+        <span>Low: <strong style="color:var(--accent)">3</strong></span>
+        <span>Total financial impact: <strong style="color:var(--red)">$24,800</strong></span>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Issue log</div>
+        <div style="overflow-x:auto">
+        <table class="tbl" style="min-width:560px">
+          <thead><tr><th>Issue</th><th>Type</th><th>Country</th><th>Impact</th><th>Severity</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>10 units missing — shipment #MX-0492</td><td>Inventory mismatch</td><td>🇲🇽 Mexico</td><td style="color:var(--red)">$2,800</td><td><span class="bdg br">High</span></td><td><span class="bdg br">Open</span></td></tr>
+            <tr><td>Margin drop — Sul Logistics</td><td>Margin drop</td><td>🇧🇷 Brazil</td><td style="color:var(--red)">$11,200</td><td><span class="bdg br">High</span></td><td><span class="bdg by">In review</span></td></tr>
+            <tr><td>230 units in transit — no receipt</td><td>Inventory mismatch</td><td>🇧🇷 Brazil</td><td style="color:var(--red)">$8,200</td><td><span class="bdg br">High</span></td><td><span class="bdg by">In review</span></td></tr>
+            <tr><td>Payment delay — 6 days</td><td>Payment delay</td><td>🇨🇴 Colombia</td><td style="color:var(--muted)">$0</td><td><span class="bdg bb">Low</span></td><td><span class="bdg bg">Resolved</span></td></tr>
+            <tr><td>Return rate spike — Peru</td><td>Operational</td><td>🇵🇪 Peru</td><td style="color:var(--yellow)">$1,400</td><td><span class="bdg by">Medium</span></td><td><span class="bdg by">Monitoring</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="insight">Most discrepancies are occurring during the Shipped → Received stage, particularly in Brazil and Mexico. This pattern suggests a logistics partner issue rather than a data entry error. Recommend auditing carrier receipts for April shipments.</div>
+      </div>
+      <div class="abtn-row">
+        <button class="abtn abtn-p">Investigate top issue</button>
+        <button class="abtn">Assign all high severity</button>
+        <button class="abtn">Export report</button>
+      </div>
+    </div>
+
+    <!-- S5: ROOT CAUSE -->
+    <div id="s5" class="screen">
+      <div class="sbar">
+        <span class="stitle">Root cause — shipment #MX-0492</span>
+        <div style="display:flex;gap:6px"><span class="bdg br">Mexico</span><span class="bdg br">High severity</span></div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Stage-by-stage unit tracking</div>
+        <div class="stage-row">
+          <div class="stage-box"><div class="sb-label">Shipped</div><div class="sb-act kv-g">500</div><div class="sb-exp" style="color:var(--muted)">Expected: 500</div><div class="sb-diff kv-g">✓ No gap</div></div>
+          <div class="stage-box mismatch"><div class="sb-label">Received</div><div class="sb-act kv-r">490</div><div class="sb-exp">Expected: 500</div><div class="sb-diff kv-r">⚠ -10 units</div></div>
+          <div class="stage-box"><div class="sb-label">Deployed</div><div class="sb-act kv-g">488</div><div class="sb-exp" style="color:var(--muted)">Expected: 490</div><div class="sb-diff kv-g">-2 QC reject</div></div>
+          <div class="stage-box"><div class="sb-label">Returned</div><div class="sb-act" style="color:var(--muted)">12</div><div class="sb-exp" style="color:var(--muted)">Normal rate</div><div class="sb-diff" style="color:var(--muted)">2.4%</div></div>
+        </div>
+        <div class="insight" style="background:var(--red-dim);border-color:var(--red);color:#6a1808">Root cause: 10 units went missing between the carrier handoff and warehouse receipt on Apr 18. Carrier signed for 500 units; warehouse confirmed only 490. Likely logistics issue — possible damage in transit or carrier error. Claim filed with carrier insurance.</div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Financial impact</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+          <div class="kpi"><div class="kpi-l">Units lost</div><div class="kpi-v kv-r">10</div></div>
+          <div class="kpi"><div class="kpi-l">Cost impact</div><div class="kpi-v kv-r">$2,800</div></div>
+          <div class="kpi"><div class="kpi-l">Revenue impact</div><div class="kpi-v kv-r">$4,200</div></div>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Document</th><th>Date</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td>Carrier shipment receipt</td><td>Apr 18</td><td>500 units signed out</td></tr>
+            <tr><td>Warehouse receipt log</td><td>Apr 18</td><td>490 units confirmed received</td></tr>
+            <tr><td>Insurance claim #INS-2024-041</td><td>Apr 19</td><td>Filed for 10 units @ $280/unit</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Timeline</div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot tdb"></div><div><div class="tl-label">500 units dispatched from central warehouse</div><div class="tl-sub">Apr 16, 09:00 — Carrier: FastCargo MX</div><div class="tl-delta kv-g">Units: 500 ✓</div></div></div>
+          <div class="tl-item"><div class="tl-dot tdr"></div><div><div class="tl-label">Discrepancy detected at warehouse receipt</div><div class="tl-sub">Apr 18, 14:30 — Mexico City warehouse</div><div class="tl-delta kv-r">Units received: 490 — 10 missing</div></div></div>
+          <div class="tl-item"><div class="tl-dot tdy"></div><div><div class="tl-label">Carrier dispute initiated</div><div class="tl-sub">Apr 19, 10:00 — Insurance claim filed</div><div class="tl-delta kv-y">Claim: $2,800 — Pending</div></div></div>
+          <div class="tl-item"><div class="tl-dot tdg"></div><div><div class="tl-label">490 units deployed to field partners</div><div class="tl-sub">Apr 20 — Normal operations resumed</div><div class="tl-delta kv-g">Operations unaffected</div></div></div>
+        </div>
+      </div>
+      <div class="abtn-row">
+        <button class="abtn abtn-p">Mark resolved</button>
+        <button class="abtn">Assign investigation</button>
+        <button class="abtn">Add note</button>
+      </div>
+    </div>
+
+    <!-- S6: FORECASTING -->
+    <div id="s6" class="screen">
+      <div class="sbar"><span class="stitle">Forecasting &amp; scenario planning</span><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">Adjust controls to model outcomes</span></div>
+      <div class="split">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-lbl">Scenario controls</div>
+          <div style="display:flex;flex-direction:column;gap:16px;padding:4px 0">
+            <div>
+              <div class="sc-label"><span>Units shipped / month</span><span id="units-val" style="color:var(--accent)">2,000</span></div>
+              <input type="range" class="sc-track" min="500" max="5000" step="100" value="2000" oninput="updateForecast(this,'units-val',1,'$')">
+            </div>
+            <div>
+              <div class="sc-label"><span>Cost per unit</span><span id="cost-val" style="color:var(--accent)">$280</span></div>
+              <input type="range" class="sc-track" min="100" max="600" step="10" value="280" oninput="updateForecast(this,'cost-val',1,'$')">
+            </div>
+            <div>
+              <div class="sc-label"><span>Sale price per unit</span><span id="price-val" style="color:var(--accent)">$390</span></div>
+              <input type="range" class="sc-track" min="200" max="800" step="10" value="390" oninput="updateForecast(this,'price-val',1,'$')">
+            </div>
+            <div>
+              <div class="sc-label"><span>Return rate %</span><span id="return-val" style="color:var(--accent)">3.7%</span></div>
+              <input type="range" class="sc-track" min="1" max="15" step="0.1" value="3.7" oninput="updateForecast(this,'return-val',10,'%')">
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-lbl">Projected outcome</div>
+          <div class="proj-row">
+            <div class="proj-box"><div class="pj-v kv-g" id="proj-rev">$780K</div><div class="pj-l">Projected revenue / yr</div></div>
+            <div class="proj-box"><div class="pj-v kv-a" id="proj-margin">28.2%</div><div class="pj-l">Projected margin</div></div>
+            <div class="proj-box"><div class="pj-v kv-r" id="proj-loss">$10.8K</div><div class="pj-l">Est. return losses / yr</div></div>
+          </div>
+          <div class="insight" id="forecast-insight">At current settings, margin is within target range. Monitor return rate — each 1% increase reduces annual margin by approximately 0.9%.</div>
+          <div style="margin-top:16px">
+            <div class="card-lbl">Revenue vs cost comparison</div>
+            <div style="position:relative;height:140px"><canvas id="fc-chart" role="img" aria-label="Bar chart comparing current vs projected revenue and margin">Current: revenue $284k, margin 28%. Projected: higher based on slider values.</canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end app-frame -->
+</section>
+
+<footer>
+  <p>// financial-manager · upwork portfolio · project-03</p>
+  <span class="ftag">Illustrative sample — data is fictional</span>
+</footer>
+
+<script>
+function showTab(id, btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='s3'&&!window.plDone) buildPL();
+  if(id==='s6'&&!window.fcDone) buildFC();
+}
+
+function buildPL(){
+  window.plDone=true;
+  new Chart(document.getElementById('pl-chart'),{
+    type:'line',
+    data:{
+      labels:['Nov','Dec','Jan','Feb','Mar','Apr'],
+      datasets:[
+        {label:'Revenue',data:[94000,96000,95000,97000,98000,98400],borderColor:'#1d7a4a',tension:0.3,pointRadius:3,pointBackgroundColor:'#1d7a4a',backgroundColor:'transparent'},
+        {label:'Costs',data:[62000,64000,68000,70000,72000,74500],borderColor:'#c8401a',tension:0.3,pointRadius:3,pointBackgroundColor:'#c8401a',backgroundColor:'transparent'},
+        {label:'Profit',data:[32000,32000,27000,27000,26000,23900],borderColor:'#4040b8',tension:0.3,pointRadius:3,pointBackgroundColor:'#4040b8',backgroundColor:'transparent',borderDash:[4,3]}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{ticks:{callback:v=>'$'+(v/1000)+'k',color:'#7d746a',font:{size:10,family:'IBM Plex Mono'}},grid:{color:'rgba(0,0,0,0.05)'},border:{display:false}},
+        x:{ticks:{color:'#7d746a',font:{size:10,family:'IBM Plex Mono'}},grid:{display:false},border:{display:false}}
+      }
+    }
+  });
+}
+
+let fcChart;
+function buildFC(){
+  window.fcDone=true;
+  fcChart = new Chart(document.getElementById('fc-chart'),{
+    type:'bar',
+    data:{
+      labels:['Current revenue','Projected revenue','Current margin %','Projected margin %'],
+      datasets:[{
+        data:[284000,780000,28,28.2],
+        backgroundColor:['rgba(122,48,24,0.1)','rgba(58,107,42,0.1)','rgba(122,48,24,0.1)','rgba(58,107,42,0.1)'],
+        borderColor:['#a04020','#3a6b2a','#a04020','#3a6b2a'],
+        borderWidth:1.5,borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{ticks:{color:'#7d746a',font:{size:10,family:'IBM Plex Mono'}},grid:{color:'rgba(0,0,0,0.05)'},border:{display:false}},
+        x:{ticks:{color:'#7d746a',font:{size:10,family:'IBM Plex Mono'},maxRotation:0},grid:{display:false},border:{display:false}}
+      }
+    }
+  });
+}
+
+function updateForecast(slider, labelId, divisor, prefix){
+  const val = parseFloat(slider.value);
+  const el = document.getElementById(labelId);
+  if(prefix==='$') el.textContent = '$'+val.toLocaleString();
+  else el.textContent = val+'%';
+
+  const units = parseFloat(document.getElementById('units-val').textContent.replace(/[$,]/g,''));
+  const cost = parseFloat(document.getElementById('cost-val').textContent.replace(/[$,]/g,''));
+  const price = parseFloat(document.getElementById('price-val').textContent.replace(/[$,]/g,''));
+  const ret = parseFloat(document.getElementById('return-val').textContent.replace('%',''));
+
+  const annualUnits = units * 12;
+  const revenue = annualUnits * price;
+  const costs = annualUnits * cost;
+  const returnLoss = annualUnits * (ret/100) * cost;
+  const profit = revenue - costs - returnLoss;
+  const margin = revenue > 0 ? ((profit/revenue)*100) : 0;
+
+  document.getElementById('proj-rev').textContent = '$'+(revenue/1000).toFixed(0)+'K';
+  document.getElementById('proj-margin').textContent = margin.toFixed(1)+'%';
+  document.getElementById('proj-loss').textContent = '$'+(returnLoss/1000).toFixed(1)+'K';
+
+  const insight = document.getElementById('forecast-insight');
+  if(margin < 20){
+    insight.textContent = '⚠ Warning: Projected margin is below 20% minimum threshold. Reduce costs or increase price before expanding at this volume.';
+    insight.style.borderColor='#b03020';insight.style.color='#6a1808';insight.style.background='rgba(176,48,32,0.07)';
+  } else if(margin > 30){
+    insight.textContent = '✓ Strong margin projection. This scenario is financially viable for expansion. Consider scaling volume further.';
+    insight.style.borderColor='#3a6b2a';insight.style.color='#1e4010';insight.style.background='rgba(58,107,42,0.07)';
+  } else {
+    insight.textContent = 'At current settings, margin is within target range. Monitor return rate — each 1% increase reduces annual margin by approximately 0.9%.';
+    insight.style.borderColor='#a04020';insight.style.color='#5a2010';insight.style.background='rgba(122,48,24,0.07)';
+  }
+}
+
+window.addEventListener('load',()=>{ buildPL(); });
+</script>
+</body>
+</html>
